@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import { getOrCreateUser } from '@/lib/syncUser';
-import Revision from '@/models/Revision';
+import Revision, { type IRevision } from '@/models/Revision';
 import StudyLog from '@/models/StudyLog'; // Required to register StudyLog schema for populate
 
 // GET: Fetch revisions
@@ -15,8 +15,13 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url);
     const dueTodayOnly = searchParams.get('dueToday') === 'true';
-
-    const query: { userId: typeof user._id; status?: string; dueDate?: { $lte: Date } } = { userId: user._id };
+  const query: {
+    userId: typeof user._id;
+    status?: IRevision['status'];
+    dueDate?: { $lte: Date };
+} = {
+  userId: user._id,
+};
 
     if (dueTodayOnly) {
       // Revisions due up to the end of today (including overdue ones)
